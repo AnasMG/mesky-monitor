@@ -30,6 +30,8 @@ MAX_DAYS_AHEAD = int(os.environ.get("MEDSKY_MAX_DAYS", "0"))
 
 API_URL = "https://portal.medsky.aero/api/FlightBooking/GetAvailability"
 STATE_FILE = Path(__file__).parent / "state.json"
+HISTORY_FILE = Path(__file__).parent / "docs" / "history.json"
+HISTORY_MAX = 200   # keep the most recent N movements
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
@@ -107,8 +109,57 @@ def load_state() -> dict:
 
 
 def save_state(flights: dict[str, dict]) -> None:
-    state = {key: info["seats"] for key, info in flights.items()}
-    STATE_FILE.write_text(json.dumps(state, indent=2, sort_keys=True))
+    # Store the full per-class breakdown so we can detect movement in any class.
+    state = {
+        key: {"seats": info["seats"], "classes": info["classes"], "departure": info["departure"], "flight": info["flight"]}
+        for key, info in flights.items()
+    }
+    STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True))
+
+
+def prev_seats(prev: dict, key: str) -> int:
+    """Read seat count from a state entry, tolerating the old flat format."""
+    v = prev.get(key)
+    if isinstance(v, dict):
+        return int(v.get("seats", 0) or 0)
+    if isinstance(v, (int, float)):
+        return int(v)
+    return 0
+
+
+def detect_movements(flights: dict[str, dict], prev: dict) -> list[dict]:
+    """Compare current vs previous per-class counts; return a movement per change."""
+    moves = []
+    stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    for key, info in flights.items():
+        old = prev.get(key)
+        old_classes = old.get("classes", {}) if isinstance(old, dict) else {}
+        for cid, now_n in info["classes"].items():
+            was = int(old_classes.get(cid, 0) or 0)
+            if now_n != was:
+                moves.append({
+                    "ts": stamp,
+                    "flight": info["flight"],
+                    "departure": info["departure"],
+                    "cls": cid,
+                    "from": was,
+                    "to": now_n,
+                    "delta": now_n - was,
+                })
+    return moves
+
+
+def append_history(moves: list[dict]) -> None:
+    HISTORY_FILE.parent.mkdir(exist_ok=True)
+    log = []
+    if HISTORY_FILE.exists():
+        try:
+            log = json.loads(HISTORY_FILE.read_text())
+        except json.JSONDecodeError:
+            log = []
+    log.extend(moves)
+    log = log[-HISTORY_MAX:]                      # cap size
+    HISTORY_FILE.write_text(json.dumps(log, ensure_ascii=False, indent=2))
 
 
 def write_page_data(flights: dict[str, dict]) -> None:
@@ -176,7 +227,7 @@ def main() -> int:
     newly_available = [
         info
         for key, info in sorted(flights.items())
-        if info["seats"] > 0 and prev.get(key, 0) == 0
+        if info["seats"] > 0 and prev_seats(prev, key) == 0
     ]
 
     if first_run:
@@ -187,6 +238,13 @@ def main() -> int:
         print(f"Alert sent for {len(newly_available)} flight(s).")
     else:
         print("No change worth alerting.")
+
+    # Record every seat movement (any class, any direction) to the history log.
+    if not first_run:
+        moves = detect_movements(flights, prev)
+        if moves:
+            append_history(moves)
+            print(f"Logged {len(moves)} movement(s).")
 
     save_state(flights)
     write_page_data(flights)
