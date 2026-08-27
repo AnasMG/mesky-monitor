@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-MedSky seat availability monitor.
-Polls GetAvailability and sends a Telegram alert when a flight
-goes from sold-out (0 seats) to available (>0 seats).
+MedSky seat availability monitor — two directions.
 
-State is kept in state.json (committed back by the GitHub Actions workflow)
-so alerts fire only on the transition, not on every run.
+Outbound (MJI -> MXP): sends a Telegram alert when a flight goes from
+sold-out to available. Return (MXP -> MJI): tracked and shown on the
+board, but does NOT trigger Telegram alerts (display-only).
+
+Both directions are recorded in the movement history log.
 """
 
 import json
@@ -16,22 +17,21 @@ from pathlib import Path
 
 import requests
 
-# ---------------------------------------------------------------
-# Configuration (override via environment variables if needed)
-# ---------------------------------------------------------------
-FROM_CODE = os.environ.get("MEDSKY_FROM", "MJI")   # Mitiga
-TO_CODE = os.environ.get("MEDSKY_TO", "MXP")       # Milano Malpensa
+# Directions to watch.
+#   alert=True  -> a sold-out -> available transition sends Telegram
+#   alert=False -> tracked and shown on the board, but no Telegram
+LEGS = [
+    {"from": "MJI", "to": "MXP", "alert": True},   # outbound — alerts
+    {"from": "MXP", "to": "MJI", "alert": False},  # return — display only
+]
 OFFICE = int(os.environ.get("MEDSKY_OFFICE", "1"))
-# Which booking classes count as "a seat I can buy".
-# Y = economy, R = discounted economy, C = business.
 ALERT_CLASSES = set(os.environ.get("MEDSKY_CLASSES", "Y,R").split(","))
-# Only alert for flights departing within this many days (0 = no limit).
 MAX_DAYS_AHEAD = int(os.environ.get("MEDSKY_MAX_DAYS", "0"))
 
 API_URL = "https://portal.medsky.aero/api/FlightBooking/GetAvailability"
 STATE_FILE = Path(__file__).parent / "state.json"
 HISTORY_FILE = Path(__file__).parent / "docs" / "history.json"
-HISTORY_MAX = 200   # keep the most recent N movements
+HISTORY_MAX = 200
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
@@ -49,38 +49,28 @@ HEADERS = {
 }
 
 
-def fetch_availability() -> list[dict]:
-    payload = {
-        "office": OFFICE,
-        "date": date.today().isoformat(),
-        "from": FROM_CODE,
-        "to": TO_CODE,
-    }
+def fetch_availability(from_code, to_code):
+    payload = {"office": OFFICE, "date": date.today().isoformat(), "from": from_code, "to": to_code}
     resp = requests.post(API_URL, json=payload, headers=HEADERS, timeout=30)
-    print(f"API status: {resp.status_code}")
+    print(f"API status ({from_code}->{to_code}): {resp.status_code}")
     resp.raise_for_status()
-    data = resp.json()
-    return data.get("journeys", [])
+    return resp.json().get("journeys", [])
 
 
-def flights_from_journeys(journeys: list[dict]) -> dict[str, dict]:
-    """Return {flight_key: info} for every leg found."""
+def flights_from_journeys(journeys, from_code, to_code):
     flights = {}
     today = date.today()
     for journey in journeys:
         for leg in journey.get("legs", []):
             dep = leg.get("xsdDepartureDateTime", "")
-            key = f"{leg.get('flightNumber', '?')}_{dep}"
-
+            key = f"{from_code}{to_code}_{leg.get('flightNumber', '?')}_{dep}"
             if MAX_DAYS_AHEAD > 0 and dep:
                 try:
-                    dep_date = datetime.fromisoformat(dep).date()
-                    if (dep_date - today).days > MAX_DAYS_AHEAD:
+                    if (datetime.fromisoformat(dep).date() - today).days > MAX_DAYS_AHEAD:
                         continue
                 except ValueError:
                     pass
-
-            seats_alert = 0     # seats in the classes we care about
+            seats_alert = 0
             per_class = {}
             for cls in leg.get("availability", {}).get("classes", []):
                 cid = cls.get("id", "?")
@@ -88,18 +78,18 @@ def flights_from_journeys(journeys: list[dict]) -> dict[str, dict]:
                 per_class[cid] = avail
                 if cid in ALERT_CLASSES:
                     seats_alert += avail
-
             flights[key] = {
                 "flight": leg.get("flightNumber", "?"),
                 "departure": leg.get("departureDateTime", dep),
-                "route": f"{FROM_CODE} -> {TO_CODE}",
+                "route": f"{from_code} -> {to_code}",
+                "dir": f"{from_code}{to_code}",
                 "seats": seats_alert,
                 "classes": per_class,
             }
     return flights
 
 
-def load_state() -> dict:
+def load_state():
     if STATE_FILE.exists():
         try:
             return json.loads(STATE_FILE.read_text())
@@ -108,17 +98,16 @@ def load_state() -> dict:
     return {}
 
 
-def save_state(flights: dict[str, dict]) -> None:
-    # Store the full per-class breakdown so we can detect movement in any class.
+def save_state(flights):
     state = {
-        key: {"seats": info["seats"], "classes": info["classes"], "departure": info["departure"], "flight": info["flight"]}
+        key: {"seats": info["seats"], "classes": info["classes"],
+              "departure": info["departure"], "flight": info["flight"]}
         for key, info in flights.items()
     }
     STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True))
 
 
-def prev_seats(prev: dict, key: str) -> int:
-    """Read seat count from a state entry, tolerating the old flat format."""
+def prev_seats(prev, key):
     v = prev.get(key)
     if isinstance(v, dict):
         return int(v.get("seats", 0) or 0)
@@ -127,8 +116,7 @@ def prev_seats(prev: dict, key: str) -> int:
     return 0
 
 
-def detect_movements(flights: dict[str, dict], prev: dict) -> list[dict]:
-    """Compare current vs previous per-class counts; return a movement per change."""
+def detect_movements(flights, prev):
     moves = []
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
     for key, info in flights.items():
@@ -138,18 +126,14 @@ def detect_movements(flights: dict[str, dict], prev: dict) -> list[dict]:
             was = int(old_classes.get(cid, 0) or 0)
             if now_n != was:
                 moves.append({
-                    "ts": stamp,
-                    "flight": info["flight"],
-                    "departure": info["departure"],
-                    "cls": cid,
-                    "from": was,
-                    "to": now_n,
-                    "delta": now_n - was,
+                    "ts": stamp, "flight": info["flight"], "departure": info["departure"],
+                    "dir": info.get("dir", ""), "cls": cid,
+                    "from": was, "to": now_n, "delta": now_n - was,
                 })
     return moves
 
 
-def append_history(moves: list[dict]) -> None:
+def append_history(moves):
     HISTORY_FILE.parent.mkdir(exist_ok=True)
     log = []
     if HISTORY_FILE.exists():
@@ -158,50 +142,43 @@ def append_history(moves: list[dict]) -> None:
         except json.JSONDecodeError:
             log = []
     log.extend(moves)
-    log = log[-HISTORY_MAX:]                      # cap size
+    log = log[-HISTORY_MAX:]
     HISTORY_FILE.write_text(json.dumps(log, ensure_ascii=False, indent=2))
 
 
-def write_page_data(flights: dict[str, dict]) -> None:
-    """Write docs/data.json for the GitHub Pages status board."""
+def write_page_data(directions):
     docs = Path(__file__).parent / "docs"
     docs.mkdir(exist_ok=True)
     payload = {
         "updated_utc": datetime.now(timezone.utc).isoformat(),
-        "from": FROM_CODE,
-        "to": TO_CODE,
-        "flights": [
+        "directions": [
             {
-                "flight": f["flight"],
-                "departure": f["departure"],
-                "seats": f["seats"],
-                "classes": f["classes"],
+                "from": d["from"], "to": d["to"], "alert": d["alert"],
+                "flights": [
+                    {"flight": f["flight"], "departure": f["departure"],
+                     "seats": f["seats"], "classes": f["classes"]}
+                    for _, f in sorted(d["flights"].items())
+                ],
             }
-            for _, f in sorted(flights.items())
+            for d in directions
         ],
     }
-    (docs / "data.json").write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2)
-    )
+    (docs / "data.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
-def send_telegram(text: str) -> None:
+def send_telegram(text):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         print("Telegram not configured; message would have been:")
         print(text)
         return
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    resp = requests.post(
-        url,
-        json={"chat_id": TELEGRAM_CHAT_ID, "text": text},
-        timeout=30,
-    )
+    resp = requests.post(url, json={"chat_id": TELEGRAM_CHAT_ID, "text": text}, timeout=30)
     print(f"Telegram status: {resp.status_code}")
     if resp.status_code != 200:
         print(resp.text)
 
 
-def format_alert(newly_available: list[dict]) -> str:
+def format_alert(newly_available):
     lines = ["🚨 مقاعد متوفرة على MedSky!"]
     for f in newly_available:
         cls_txt = "  ".join(f"{c}:{n}" for c, n in f["classes"].items())
@@ -214,24 +191,29 @@ def format_alert(newly_available: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def main() -> int:
-    journeys = fetch_availability()
-    flights = flights_from_journeys(journeys)
-    print(f"Flights in window: {len(flights)}")
-    for key, f in sorted(flights.items()):
-        print(f"  {f['departure']}  {f['flight']}  seats={f['seats']}  {f['classes']}")
-
+def main():
     prev = load_state()
     first_run = not STATE_FILE.exists()
 
-    newly_available = [
-        info
-        for key, info in sorted(flights.items())
-        if info["seats"] > 0 and prev_seats(prev, key) == 0
-    ]
+    directions = []
+    all_flights = {}
+    newly_available = []
+
+    for leg in LEGS:
+        journeys = fetch_availability(leg["from"], leg["to"])
+        flights = flights_from_journeys(journeys, leg["from"], leg["to"])
+        print(f"{leg['from']}->{leg['to']}: {len(flights)} flight(s)")
+        for _, f in sorted(flights.items()):
+            print(f"  {f['departure']}  {f['flight']}  seats={f['seats']}  {f['classes']}")
+        directions.append({**leg, "flights": flights})
+        all_flights.update(flights)
+        if leg["alert"]:
+            newly_available += [
+                info for key, info in sorted(flights.items())
+                if info["seats"] > 0 and prev_seats(prev, key) == 0
+            ]
 
     if first_run:
-        # Don't alert on the very first run — just record the baseline.
         print("First run: baseline saved, no alerts sent.")
     elif newly_available:
         send_telegram(format_alert(newly_available))
@@ -239,15 +221,14 @@ def main() -> int:
     else:
         print("No change worth alerting.")
 
-    # Record every seat movement (any class, any direction) to the history log.
     if not first_run:
-        moves = detect_movements(flights, prev)
+        moves = detect_movements(all_flights, prev)
         if moves:
             append_history(moves)
             print(f"Logged {len(moves)} movement(s).")
 
-    save_state(flights)
-    write_page_data(flights)
+    save_state(all_flights)
+    write_page_data(directions)
     return 0
 
 
@@ -255,7 +236,5 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except requests.RequestException as exc:
-        # Network/API failure: log and exit 0 so the workflow doesn't
-        # spam failure emails; next run will retry anyway.
         print(f"Request failed: {exc}")
         sys.exit(0)
