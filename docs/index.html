@@ -3,75 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070B14">
 <title>مقاعد MedSky — MJI ← MXP</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;600;800&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0B1220;        /* night sky */
-    --board:#131D31;     /* board panel */
-    --line:#1E2A44;
-    --amber:#F5B841;     /* FIDS amber */
-    --green:#3DDC84;
-    --red:#E4576A;
-    --text:#E8EDF6;
-    --dim:#7C89A3;
+    --bg0:#070B14; --bg1:#0D1526;
+    --panel:rgba(255,255,255,.035);
+    --panel-line:rgba(216,178,92,.22);
+    --hairline:rgba(139,150,173,.16);
+    --gold:#D8B25C; --gold-soft:#E7C878;
+    --green:#34D399; --red:#F87171;
+    --text:#F2F5FB; --dim:#8B96AD;
   }
   *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
   body{
-    background:var(--bg);color:var(--text);
+    min-height:100vh;color:var(--text);
+    background:radial-gradient(120% 90% at 50% -10%, var(--bg1) 0%, var(--bg0) 60%);
     font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
-    min-height:100vh;padding:20px 16px 40px;
     font-feature-settings:"tnum";
+    padding:26px 18px 48px;
   }
-  .wrap{max-width:520px;margin:0 auto}
-  header{display:flex;justify-content:space-between;align-items:baseline;
-    border-bottom:2px solid var(--amber);padding-bottom:10px;margin-bottom:18px}
-  header h1{font-size:15px;font-weight:500;letter-spacing:.06em;color:var(--amber)}
-  header .route{font-size:15px;color:var(--dim)}
-  /* hero: the answer */
-  .answer{background:var(--board);border:1px solid var(--line);border-radius:10px;
-    padding:22px 18px;text-align:center;margin-bottom:22px}
-  .answer .label{font-size:12px;letter-spacing:.14em;color:var(--dim);margin-bottom:8px}
-  .answer .value{font-size:26px;font-weight:700;line-height:1.3}
-  .answer .value.ok{color:var(--green)}
-  .answer .value.none{color:var(--red)}
-  .answer .sub{font-size:13px;color:var(--dim);margin-top:8px}
-  /* board rows */
-  .board{border-top:1px solid var(--line)}
-  .row{display:flex;align-items:center;gap:12px;padding:14px 4px;
-    border-bottom:1px solid var(--line)}
+  .wrap{max-width:500px;margin:0 auto}
+
+  /* masthead */
+  .mast{text-align:center;margin-bottom:26px}
+  .mast .brand{
+    font-family:"Alexandria",sans-serif;font-weight:800;font-size:20px;
+    letter-spacing:.04em;color:var(--gold-soft);
+  }
+  .mast .tag{font-size:11.5px;color:var(--dim);letter-spacing:.28em;margin-top:6px}
+  .mast::after{
+    content:"";display:block;width:56px;height:2px;margin:16px auto 0;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  }
+
+  /* boarding-pass hero */
+  .pass{
+    position:relative;border-radius:16px;overflow:hidden;
+    background:linear-gradient(160deg,rgba(216,178,92,.10),rgba(216,178,92,.02) 45%),var(--panel);
+    border:1px solid var(--panel-line);
+    box-shadow:0 24px 60px -30px rgba(0,0,0,.8);
+    margin-bottom:30px;
+  }
+  .pass .route{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 22px 16px;direction:ltr;
+  }
+  .pass .code{font-family:"Alexandria",sans-serif;font-weight:800;font-size:30px;letter-spacing:.02em}
+  .pass .city{font-size:11px;color:var(--dim);margin-top:2px;letter-spacing:.08em}
+  .pass .path{flex:1;position:relative;height:1px;margin:0 16px;
+    background-image:linear-gradient(90deg,var(--gold) 40%,transparent 0);
+    background-size:8px 1px;opacity:.65}
+  .pass .path::after{
+    content:"✈";position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+    font-size:14px;color:var(--gold-soft);
+  }
+  .perf{position:relative;height:0;border-top:1.5px dashed rgba(139,150,173,.35);margin:0 14px}
+  .perf::before,.perf::after{
+    content:"";position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;
+    background:var(--bg0);border:1px solid var(--panel-line);
+  }
+  .perf::before{right:-24px}
+  .perf::after{left:-24px}
+  .pass .body{padding:18px 22px 22px;text-align:center}
+  .pass .label{font-size:11px;letter-spacing:.3em;color:var(--dim);margin-bottom:10px}
+  .pass .value{font-family:"Alexandria",sans-serif;font-weight:600;font-size:22px;line-height:1.45}
+  .pass .value.ok{color:var(--green)}
+  .pass .value.none{color:var(--red);font-weight:400}
+  .pass .sub{font-size:13px;color:var(--dim);margin-top:10px;line-height:1.8}
+  .pass .sub b{color:var(--gold-soft);font-weight:500}
+
+  /* schedule */
+  .sched-title{
+    display:flex;align-items:center;gap:12px;
+    font-size:11.5px;letter-spacing:.26em;color:var(--dim);margin-bottom:6px;
+  }
+  .sched-title::after{content:"";flex:1;height:1px;background:var(--hairline)}
+  .row{
+    display:flex;align-items:center;gap:14px;
+    padding:16px 4px;border-bottom:1px solid var(--hairline);
+  }
+  .row:last-child{border-bottom:none}
   .row .when{flex:1;min-width:0}
-  .row .date{font-size:16px;font-weight:500}
-  .row .meta{font-size:12px;color:var(--dim);margin-top:2px}
-  .row .seats{text-align:left;direction:ltr;font-size:12px;color:var(--dim);white-space:nowrap}
-  .badge{font-size:13px;font-weight:700;padding:5px 12px;border-radius:6px;white-space:nowrap}
-  .badge.ok{color:#06110A;background:var(--green)}
-  .badge.none{color:var(--red);background:transparent;border:1px solid var(--red);opacity:.85}
-  footer{margin-top:22px;font-size:12px;color:var(--dim);text-align:center;line-height:1.9}
-  footer .stale{color:var(--amber)}
-  .state{padding:40px 10px;text-align:center;color:var(--dim);font-size:14px;line-height:1.9}
+  .row .date{font-family:"Alexandria",sans-serif;font-weight:400;font-size:15.5px}
+  .row .meta{font-size:11.5px;color:var(--dim);margin-top:4px;letter-spacing:.04em}
+  .row .cls{direction:ltr;font-size:11px;color:var(--dim);white-space:nowrap;letter-spacing:.05em}
+  .pill{
+    font-family:"Alexandria",sans-serif;font-size:12.5px;font-weight:600;
+    padding:6px 14px;border-radius:999px;white-space:nowrap;
+  }
+  .pill.ok{color:#06110A;background:linear-gradient(135deg,var(--green),#6EE7B7)}
+  .pill.none{color:var(--dim);border:1px solid var(--hairline);font-weight:300}
+
+  footer{margin-top:34px;font-size:11.5px;color:var(--dim);text-align:center;line-height:2.1;letter-spacing:.03em}
+  footer .stale{color:var(--gold)}
+  .state{padding:48px 12px;text-align:center;color:var(--dim);font-size:14px;line-height:2}
+
   @media (prefers-reduced-motion:no-preference){
-    .row{animation:in .25s ease both}
-    @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+    .pass{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .row{animation:rise .4s cubic-bezier(.2,.7,.2,1) both}
+    .row:nth-child(2){animation-delay:.05s}.row:nth-child(3){animation-delay:.1s}
+    .row:nth-child(4){animation-delay:.15s}.row:nth-child(5){animation-delay:.2s}
+    .row:nth-child(6){animation-delay:.25s}
+    @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>لوحة مقاعد MEDSKY</h1>
-    <div class="route" id="route">MJI ← MXP</div>
-  </header>
+  <div class="mast">
+    <div class="brand">لوحة مقاعد MEDSKY</div>
+    <div class="tag" id="route">MJI — MXP</div>
+  </div>
   <div id="app"><div class="state">جاري تحميل البيانات…</div></div>
   <footer id="foot"></footer>
 </div>
 <script>
 const TZ="Africa/Tripoli";
 const app=document.getElementById("app"), foot=document.getElementById("foot");
+const CITY={MJI:"معيتيقة · طرابلس",MXP:"مالبينسا · ميلانو"};
 
 function fmtDep(s){
-  // "2026-09-11 09:00" -> weekday + date + time in Arabic
   const d=new Date(s.replace(" ","T"));
   if(isNaN(d)) return s;
   return d.toLocaleDateString("ar-LY",{weekday:"long",day:"numeric",month:"long"})
@@ -80,39 +136,50 @@ function fmtDep(s){
 function render(data){
   const flights=data.flights||[];
   const avail=flights.filter(f=>f.seats>0);
-  let html="";
+  const from=data.from||"MJI", to=data.to||"MXP";
 
-  // hero: the answer first
+  let hero;
   if(avail.length){
-    const first=avail[0];
-    html+=`<div class="answer"><div class="label">أقرب مقعد متاح</div>
-      <div class="value ok">${fmtDep(first.departure)}</div>
-      <div class="sub">${first.seats} مقعد — رحلة ${first.flight} · احجز من booking.medsky.aero</div></div>`;
+    const f=avail[0];
+    hero=`<div class="label">أقرب مقعد متاح</div>
+      <div class="value ok">${fmtDep(f.departure)}</div>
+      <div class="sub"><b>${f.seats} مقعد</b> · رحلة ${f.flight} · احجز من booking.medsky.aero</div>`;
   }else{
-    html+=`<div class="answer"><div class="label">الوضع الحالي</div>
+    hero=`<div class="label">الوضع الحالي</div>
       <div class="value none">لا مقاعد متاحة</div>
-      <div class="sub">كل الرحلات في النافذة الحالية مكتملة — التنبيه بيجيك أول ما يتغير الوضع</div></div>`;
+      <div class="sub">كل الرحلات في النافذة الحالية مكتملة — التنبيه يوصلك أول ما يتغير الوضع</div>`;
   }
 
-  // full board
-  html+=`<div class="board">`+flights.map(f=>{
+  const rows=flights.map(f=>{
     const ok=f.seats>0;
     const cls=Object.entries(f.classes||{}).map(([k,v])=>k+":"+v).join("  ");
     return `<div class="row">
       <div class="when"><div class="date">${fmtDep(f.departure)}</div>
       <div class="meta">رحلة ${f.flight}</div></div>
-      <div class="seats">${cls}</div>
-      <div class="badge ${ok?"ok":"none"}">${ok?f.seats+" مقعد":"مكتملة"}</div>
+      <div class="cls">${cls}</div>
+      <div class="pill ${ok?"ok":"none"}">${ok?f.seats+" مقعد":"مكتملة"}</div>
     </div>`;
-  }).join("")+`</div>`;
+  }).join("");
 
-  app.innerHTML=html;
-  document.getElementById("route").textContent=(data.from||"MJI")+" ← "+(data.to||"MXP");
+  app.innerHTML=`
+    <div class="pass">
+      <div class="route">
+        <div><div class="code">${from}</div><div class="city">${CITY[from]||""}</div></div>
+        <div class="path"></div>
+        <div style="text-align:right"><div class="code">${to}</div><div class="city">${CITY[to]||""}</div></div>
+      </div>
+      <div class="perf"></div>
+      <div class="body">${hero}</div>
+    </div>
+    <div class="sched-title">جدول الرحلات</div>
+    <div class="board">${rows}</div>`;
+
+  document.getElementById("route").textContent=from+" — "+to;
 
   const upd=new Date(data.updated_utc);
   const ageMin=Math.round((Date.now()-upd.getTime())/60000);
   let t="آخر فحص: "+upd.toLocaleString("ar-LY",{timeZone:TZ,hour:"2-digit",minute:"2-digit",day:"numeric",month:"numeric"})
-       +" (بتوقيت ليبيا) · يتجدد كل نص ساعة تقريباً";
+       +" بتوقيت ليبيا · يتجدد تلقائياً كل نص ساعة";
   if(ageMin>120) t+=`<br><span class="stale">⚠ البيانات عمرها ${Math.round(ageMin/60)} ساعة — تأكد إن المراقب شغال في GitHub Actions</span>`;
   foot.innerHTML=t;
 }
@@ -122,13 +189,12 @@ async function load(){
     if(!r.ok) throw 0;
     render(await r.json());
   }catch(e){
-    app.innerHTML=`<div class="state">ما فيش بيانات بعد.<br>
-      شغّل المراقب مرة وحدة من GitHub Actions (زر Run workflow)<br>وارجع حدّث الصفحة.</div>`;
+    app.innerHTML=`<div class="state">ما فيش بيانات بعد.<br>شغّل المراقب مرة وحدة من GitHub Actions وارجع حدّث الصفحة.</div>`;
     foot.textContent="";
   }
 }
 load();
-setInterval(load, 5*60*1000); // refresh every 5 minutes while open
+setInterval(load, 5*60*1000);
 </script>
 </body>
 </html>
