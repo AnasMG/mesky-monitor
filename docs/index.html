@@ -102,6 +102,19 @@
   footer{margin-top:34px;font-size:11.5px;color:var(--dim);text-align:center;line-height:2.1;letter-spacing:.03em}
   footer .stale{color:var(--gold)}
 
+  /* direction tabs */
+  .tabs{display:flex;gap:8px;margin-bottom:18px}
+  .tab{
+    flex:1;text-align:center;padding:11px 8px;border-radius:10px;cursor:pointer;
+    font-family:"Alexandria",sans-serif;font-size:13.5px;font-weight:400;
+    color:var(--dim);background:var(--panel);border:1px solid var(--hairline);
+    transition:.18s;user-select:none;
+  }
+  .tab .sub{display:block;font-size:10.5px;margin-top:3px;opacity:.7;font-family:"IBM Plex Sans Arabic"}
+  .tab.on{color:var(--gold-soft);border-color:var(--panel-line);
+    background:linear-gradient(160deg,rgba(216,178,92,.12),rgba(216,178,92,.03))}
+  .tab.on .sub{opacity:.9}
+
   /* movement history */
   .hnote{font-size:11px;color:var(--dim);margin-bottom:10px;letter-spacing:.02em;opacity:.8}
   .hrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--hairline)}
@@ -139,7 +152,13 @@ const TZ="Africa/Tripoli";
 const app=document.getElementById("app"), foot=document.getElementById("foot");
 const CITY={MJI:"معيتيقة · طرابلس",MXP:"مالبينسا · ميلانو"};
 const API="https://portal.medsky.aero/api/FlightBooking/GetAvailability";
-const ROUTE={office:1, from:"MJI", to:"MXP"};
+// Directions: outbound alerts, return is display-only (matches monitor.py)
+const LEGS=[
+  {from:"MJI", to:"MXP", label:"ذهاب"},
+  {from:"MXP", to:"MJI", label:"عودة"},
+];
+let DIRS=[];      // [{from,to,flights,live}]
+let ACTIVE=0;     // which tab is shown
 
 function fmtDep(s){
   const d=new Date(s.replace(" ","T"));
@@ -147,65 +166,6 @@ function fmtDep(s){
   return d.toLocaleDateString("ar-LY",{weekday:"long",day:"numeric",month:"long"})
         +" — "+d.toLocaleTimeString("ar-LY",{hour:"2-digit",minute:"2-digit"});
 }
-function render(data){
-  const flights=data.flights||[];
-  const avail=flights.filter(f=>f.seats>0);
-  const from=data.from||"MJI", to=data.to||"MXP";
-
-  let hero;
-  if(avail.length){
-    const f=avail[0];
-    hero=`<div class="label">أقرب مقعد متاح</div>
-      <div class="value ok">${fmtDep(f.departure)}</div>
-      <div class="sub"><b>${f.seats} مقعد</b> · رحلة ${f.flight} · احجز من booking.medsky.aero</div>`;
-  }else{
-    hero=`<div class="label">الوضع الحالي</div>
-      <div class="value none">لا مقاعد متاحة</div>
-      <div class="sub">كل الرحلات في النافذة الحالية مكتملة — التنبيه يوصلك أول ما يتغير الوضع</div>`;
-  }
-
-  const rows=flights.map(f=>{
-    const ok=f.seats>0;
-    const cls=Object.entries(f.classes||{}).map(([k,v])=>k+":"+v).join("  ");
-    return `<div class="row">
-      <div class="when"><div class="date">${fmtDep(f.departure)}</div>
-      <div class="meta">رحلة ${f.flight}</div></div>
-      <div class="cls">${cls}</div>
-      <div class="pill ${ok?"ok":"none"}">${ok?f.seats+" مقعد":"مكتملة"}</div>
-    </div>`;
-  }).join("");
-
-  app.innerHTML=`
-    <div class="pass">
-      <div class="route">
-        <div><div class="code">${from}</div><div class="city">${CITY[from]||""}</div></div>
-        <div class="path"></div>
-        <div style="text-align:right"><div class="code">${to}</div><div class="city">${CITY[to]||""}</div></div>
-      </div>
-      <div class="perf"></div>
-      <div class="body">${hero}</div>
-    </div>
-    <div class="sched-title">جدول الرحلات</div>
-    <div class="board">${rows}</div>
-    <div id="hist"></div>`;
-
-  document.getElementById("route").textContent=from+" — "+to;
-  loadHistory();
-
-  if(data.live){
-    foot.innerHTML="⚡ بيانات مباشرة من MedSky — اتجابت لحظة فتح الصفحة"
-      +"<br>التنبيهات التلقائية شغالة على حدة كل نص ساعة";
-  }else{
-    const upd=new Date(data.updated_utc);
-    const ageMin=Math.round((Date.now()-upd.getTime())/60000);
-    let t="آخر فحص: "+upd.toLocaleString("ar-LY",{timeZone:TZ,hour:"2-digit",minute:"2-digit",day:"numeric",month:"numeric"})
-         +" بتوقيت ليبيا · يتجدد تلقائياً كل نص ساعة";
-    if(ageMin>120) t+=`<br><span class="stale">⚠ البيانات عمرها ${Math.round(ageMin/60)} ساعة — تأكد إن المراقب شغال في GitHub Actions</span>`;
-    foot.innerHTML=t;
-  }
-}
-
-/* Movement history — reads docs/history.json produced by the scheduled checks */
 function fmtShort(dep){
   const d=new Date(dep.replace(" ","T"));
   if(isNaN(d)) return dep;
@@ -216,7 +176,71 @@ function fmtWhen(ts){
   if(isNaN(d)) return ts;
   return d.toLocaleString("ar-LY",{timeZone:TZ,day:"numeric",month:"numeric",hour:"2-digit",minute:"2-digit"});
 }
-async function loadHistory(){
+
+function renderTabs(){
+  return `<div class="tabs">`+DIRS.map((d,i)=>
+    `<div class="tab ${i===ACTIVE?"on":""}" onclick="pick(${i})">${LEGS[i].label}
+       <span class="sub">${d.from} → ${d.to}</span></div>`).join("")+`</div>`;
+}
+function renderDir(d){
+  const flights=d.flights||[];
+  const avail=flights.filter(f=>f.seats>0);
+  let hero;
+  if(avail.length){
+    const f=avail[0];
+    hero=`<div class="label">أقرب مقعد متاح</div>
+      <div class="value ok">${fmtDep(f.departure)}</div>
+      <div class="sub"><b>${f.seats} مقعد</b> · رحلة ${f.flight} · احجز من booking.medsky.aero</div>`;
+  }else{
+    hero=`<div class="label">الوضع الحالي</div>
+      <div class="value none">لا مقاعد متاحة</div>
+      <div class="sub">كل الرحلات في النافذة الحالية مكتملة</div>`;
+  }
+  const rows=flights.map(f=>{
+    const ok=f.seats>0;
+    const cls=Object.entries(f.classes||{}).map(([k,v])=>k+":"+v).join("  ");
+    return `<div class="row">
+      <div class="when"><div class="date">${fmtDep(f.departure)}</div>
+      <div class="meta">رحلة ${f.flight}</div></div>
+      <div class="cls">${cls}</div>
+      <div class="pill ${ok?"ok":"none"}">${ok?f.seats+" مقعد":"مكتملة"}</div>
+    </div>`;
+  }).join("") || `<div class="state">ما فيش رحلات في النافذة الحالية.</div>`;
+
+  return `<div class="pass">
+      <div class="route">
+        <div><div class="code">${d.from}</div><div class="city">${CITY[d.from]||""}</div></div>
+        <div class="path"></div>
+        <div style="text-align:right"><div class="code">${d.to}</div><div class="city">${CITY[d.to]||""}</div></div>
+      </div>
+      <div class="perf"></div>
+      <div class="body">${hero}</div>
+    </div>
+    <div class="sched-title">جدول الرحلات</div>
+    <div class="board">${rows}</div>`;
+}
+function paint(){
+  if(!DIRS.length) return;
+  const d=DIRS[ACTIVE];
+  app.innerHTML=renderTabs()+renderDir(d)+`<div id="hist"></div>`;
+  document.getElementById("route").textContent=d.from+" — "+d.to;
+  loadHistory(d);
+
+  if(DIRS.some(x=>x.live)){
+    foot.innerHTML="⚡ بيانات مباشرة من MedSky — اتجابت لحظة فتح الصفحة"
+      +"<br>التنبيهات التلقائية على الذهاب فقط · العودة للعرض";
+  }else{
+    const upd=new Date(DIRS._updated);
+    const ageMin=Math.round((Date.now()-upd.getTime())/60000);
+    let t="آخر فحص: "+upd.toLocaleString("ar-LY",{timeZone:TZ,hour:"2-digit",minute:"2-digit",day:"numeric",month:"numeric"})
+         +" بتوقيت ليبيا · يتجدد تلقائياً كل نص ساعة";
+    if(ageMin>120) t+=`<br><span class="stale">⚠ البيانات عمرها ${Math.round(ageMin/60)} ساعة — تأكد إن المراقب شغال في GitHub Actions</span>`;
+    foot.innerHTML=t;
+  }
+}
+function pick(i){ ACTIVE=i; paint(); }
+
+async function loadHistory(d){
   const box=document.getElementById("hist");
   if(!box) return;
   let log=[];
@@ -224,8 +248,11 @@ async function loadHistory(){
     const r=await fetch("history.json?t="+Date.now(),{cache:"no-store"});
     if(r.ok) log=await r.json();
   }catch(e){}
-  if(!log.length) return;                       // nothing logged yet — show nothing
-  log=log.slice().reverse().slice(0,40);        // newest first, cap display
+  const dir=d.from+d.to;
+  // show only movements for the active direction (older logs have no dir -> show on outbound)
+  log=log.filter(m=> m.dir? m.dir===dir : (ACTIVE===0));
+  if(!log.length){ box.innerHTML=""; return; }
+  log=log.slice().reverse().slice(0,40);
 
   const rows=log.map(m=>{
     const up=m.delta>0;
@@ -242,42 +269,35 @@ async function loadHistory(){
   }).join("");
 
   box.innerHTML=`<div class="sched-title" style="margin-top:30px">الحركة الأخيرة</div>
-    <div class="hnote">كل تغيّر في عدد المقاعد، من أحدث فحص للأقدم · بتوقيت ليبيا</div>
+    <div class="hnote">تغيّرات هذا الاتجاه، من أحدث فحص للأقدم · بتوقيت ليبيا</div>
     <div class="hlist">${rows}</div>`;
 }
 
-/* Live fetch straight from the MedSky API (works only if their CORS allows it) */
-async function fetchLive(){
+/* Live fetch straight from the MedSky API for one direction */
+async function fetchLiveDir(from,to){
   const ctrl=new AbortController();
   const timer=setTimeout(()=>ctrl.abort(), 7000);
   try{
     const today=new Date().toISOString().slice(0,10);
-    const r=await fetch(API,{
-      method:"POST",
+    const r=await fetch(API,{method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({office:ROUTE.office, date:today, from:ROUTE.from, to:ROUTE.to}),
-      signal:ctrl.signal,
-    });
+      body:JSON.stringify({office:1, date:today, from, to}),
+      signal:ctrl.signal});
     if(!r.ok) throw 0;
     const raw=await r.json();
     const flights=[];
     for(const j of (raw.journeys||[])){
       for(const leg of (j.legs||[])){
-        const classes={};
-        let seats=0;
+        const classes={}; let seats=0;
         for(const c of (leg.availability?.classes||[])){
-          const n=Number(c.availability)||0;
-          classes[c.id]=n; seats+=n;
+          const n=Number(c.availability)||0; classes[c.id]=n; seats+=n;
         }
         flights.push({flight:leg.flightNumber||"?", departure:leg.departureDateTime||"", seats, classes});
       }
     }
     flights.sort((a,b)=>a.departure.localeCompare(b.departure));
-    if(!flights.length) throw 0;
-    return {live:true, from:ROUTE.from, to:ROUTE.to, flights};
-  }finally{
-    clearTimeout(timer);
-  }
+    return {from,to,flights,live:true};
+  }finally{ clearTimeout(timer); }
 }
 async function fetchCached(){
   const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});
@@ -285,15 +305,24 @@ async function fetchCached(){
   return await r.json();
 }
 async function load(){
+  // try live for both directions in parallel
+  const results=await Promise.allSettled(LEGS.map(l=>fetchLiveDir(l.from,l.to)));
+  const live=results.map((r,i)=> r.status==="fulfilled" && r.value.flights.length ? r.value : null);
+  if(live.every(Boolean)){
+    DIRS=live; paint(); return;
+  }
+  // fallback: cached data.json (new two-direction format, or legacy single)
   try{
-    render(await fetchLive());        // fresh, straight from MedSky
+    const data=await fetchCached();
+    if(data.directions){ DIRS=data.directions.map(d=>({...d,live:false})); }
+    else { DIRS=[{from:data.from||"MJI",to:data.to||"MXP",flights:data.flights||[],live:false}]; }
+    DIRS._updated=data.updated_utc;
+    // keep any live directions we did get
+    live.forEach((v,i)=>{ if(v) DIRS[i]=v; });
+    paint();
   }catch(e){
-    try{
-      render(await fetchCached());    // fallback: last scheduled check
-    }catch(e2){
-      app.innerHTML=`<div class="state">ما فيش بيانات بعد.<br>شغّل المراقب مرة وحدة من GitHub Actions وارجع حدّث الصفحة.</div>`;
-      foot.textContent="";
-    }
+    app.innerHTML=`<div class="state">ما فيش بيانات بعد.<br>شغّل المراقب مرة وحدة من GitHub Actions وارجع حدّث الصفحة.</div>`;
+    foot.textContent="";
   }
 }
 load();
