@@ -126,6 +126,8 @@
 const TZ="Africa/Tripoli";
 const app=document.getElementById("app"), foot=document.getElementById("foot");
 const CITY={MJI:"معيتيقة · طرابلس",MXP:"مالبينسا · ميلانو"};
+const API="https://portal.medsky.aero/api/FlightBooking/GetAvailability";
+const ROUTE={office:1, from:"MJI", to:"MXP"};
 
 function fmtDep(s){
   const d=new Date(s.replace(" ","T"));
@@ -176,21 +178,67 @@ function render(data){
 
   document.getElementById("route").textContent=from+" — "+to;
 
-  const upd=new Date(data.updated_utc);
-  const ageMin=Math.round((Date.now()-upd.getTime())/60000);
-  let t="آخر فحص: "+upd.toLocaleString("ar-LY",{timeZone:TZ,hour:"2-digit",minute:"2-digit",day:"numeric",month:"numeric"})
-       +" بتوقيت ليبيا · يتجدد تلقائياً كل نص ساعة";
-  if(ageMin>120) t+=`<br><span class="stale">⚠ البيانات عمرها ${Math.round(ageMin/60)} ساعة — تأكد إن المراقب شغال في GitHub Actions</span>`;
-  foot.innerHTML=t;
+  if(data.live){
+    foot.innerHTML="⚡ بيانات مباشرة من MedSky — اتجابت لحظة فتح الصفحة"
+      +"<br>التنبيهات التلقائية شغالة على حدة كل نص ساعة";
+  }else{
+    const upd=new Date(data.updated_utc);
+    const ageMin=Math.round((Date.now()-upd.getTime())/60000);
+    let t="آخر فحص: "+upd.toLocaleString("ar-LY",{timeZone:TZ,hour:"2-digit",minute:"2-digit",day:"numeric",month:"numeric"})
+         +" بتوقيت ليبيا · يتجدد تلقائياً كل نص ساعة";
+    if(ageMin>120) t+=`<br><span class="stale">⚠ البيانات عمرها ${Math.round(ageMin/60)} ساعة — تأكد إن المراقب شغال في GitHub Actions</span>`;
+    foot.innerHTML=t;
+  }
+}
+
+/* Live fetch straight from the MedSky API (works only if their CORS allows it) */
+async function fetchLive(){
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(), 7000);
+  try{
+    const today=new Date().toISOString().slice(0,10);
+    const r=await fetch(API,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({office:ROUTE.office, date:today, from:ROUTE.from, to:ROUTE.to}),
+      signal:ctrl.signal,
+    });
+    if(!r.ok) throw 0;
+    const raw=await r.json();
+    const flights=[];
+    for(const j of (raw.journeys||[])){
+      for(const leg of (j.legs||[])){
+        const classes={};
+        let seats=0;
+        for(const c of (leg.availability?.classes||[])){
+          const n=Number(c.availability)||0;
+          classes[c.id]=n; seats+=n;
+        }
+        flights.push({flight:leg.flightNumber||"?", departure:leg.departureDateTime||"", seats, classes});
+      }
+    }
+    flights.sort((a,b)=>a.departure.localeCompare(b.departure));
+    if(!flights.length) throw 0;
+    return {live:true, from:ROUTE.from, to:ROUTE.to, flights};
+  }finally{
+    clearTimeout(timer);
+  }
+}
+async function fetchCached(){
+  const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});
+  if(!r.ok) throw 0;
+  return await r.json();
 }
 async function load(){
   try{
-    const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});
-    if(!r.ok) throw 0;
-    render(await r.json());
+    render(await fetchLive());        // fresh, straight from MedSky
   }catch(e){
-    app.innerHTML=`<div class="state">ما فيش بيانات بعد.<br>شغّل المراقب مرة وحدة من GitHub Actions وارجع حدّث الصفحة.</div>`;
-    foot.textContent="";
+    try{
+      render(await fetchCached());    // fallback: last scheduled check
+    }catch(e2){
+      app.innerHTML=`<div class="state">ما فيش بيانات بعد.<br>شغّل المراقب مرة وحدة من GitHub Actions وارجع حدّث الصفحة.</div>`;
+      foot.textContent="";
+    }
   }
 }
 load();
