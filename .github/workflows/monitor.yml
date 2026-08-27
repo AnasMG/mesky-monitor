@@ -1,0 +1,47 @@
+name: MedSky seat monitor
+
+on:
+  schedule:
+           - cron: "*/30 * * * *"   # every 30 minutes (GitHub may delay a bit)
+  workflow_dispatch: {}       # manual "Run workflow" button for testing
+
+permissions:
+  contents: write             # needed to commit state.json back
+
+concurrency:
+  group: medsky-monitor
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run monitor
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Change the route here if needed:
+          MEDSKY_FROM: "MJI"
+          MEDSKY_TO: "MXP"
+          MEDSKY_CLASSES: "Y,R"
+          # MEDSKY_MAX_DAYS: "14"   # uncomment to limit the window
+        run: python monitor.py
+
+      - name: Commit updated state
+        run: |
+          git config user.name "medsky-monitor"
+          git config user.email "actions@users.noreply.github.com"
+          git add state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update availability state [skip ci]"
+            git push
+          fi
