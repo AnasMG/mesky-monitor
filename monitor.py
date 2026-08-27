@@ -11,7 +11,7 @@ so alerts fire only on the transition, not on every run.
 import json
 import os
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import requests
@@ -111,6 +111,29 @@ def save_state(flights: dict[str, dict]) -> None:
     STATE_FILE.write_text(json.dumps(state, indent=2, sort_keys=True))
 
 
+def write_page_data(flights: dict[str, dict]) -> None:
+    """Write docs/data.json for the GitHub Pages status board."""
+    docs = Path(__file__).parent / "docs"
+    docs.mkdir(exist_ok=True)
+    payload = {
+        "updated_utc": datetime.now(timezone.utc).isoformat(),
+        "from": FROM_CODE,
+        "to": TO_CODE,
+        "flights": [
+            {
+                "flight": f["flight"],
+                "departure": f["departure"],
+                "seats": f["seats"],
+                "classes": f["classes"],
+            }
+            for _, f in sorted(flights.items())
+        ],
+    }
+    (docs / "data.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2)
+    )
+
+
 def send_telegram(text: str) -> None:
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         print("Telegram not configured; message would have been:")
@@ -166,6 +189,7 @@ def main() -> int:
         print("No change worth alerting.")
 
     save_state(flights)
+    write_page_data(flights)
     return 0
 
 
