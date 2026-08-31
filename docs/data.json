@@ -1,21 +1,11 @@
 {
-  "updated_utc": "2026-08-30T21:43:56.988753+00:00",
+  "updated_utc": "2026-08-31T00:02:00.394083+00:00",
   "directions": [
     {
       "from": "MJI",
       "to": "MXP",
       "alert": true,
       "flights": [
-        {
-          "flight": "BM0526",
-          "departure": "2026-08-30 12:00",
-          "seats": 0,
-          "classes": {
-            "C": 0,
-            "Y": 0,
-            "R": 0
-          }
-        },
         {
           "flight": "BM0526",
           "departure": "2026-09-04 09:00",
@@ -55,6 +45,16 @@
             "Y": 67,
             "R": 0
           }
+        },
+        {
+          "flight": "BM0526",
+          "departure": "2026-09-18 09:00",
+          "seats": 96,
+          "classes": {
+            "C": 8,
+            "Y": 96,
+            "R": 0
+          }
         }
       ]
     },
@@ -63,16 +63,6 @@
       "to": "MJI",
       "alert": false,
       "flights": [
-        {
-          "flight": "BM0527",
-          "departure": "2026-08-30 15:20",
-          "seats": 24,
-          "classes": {
-            "C": 1,
-            "Y": 24,
-            "R": 0
-          }
-        },
         {
           "flight": "BM0527",
           "departure": "2026-09-04 12:20",
@@ -106,10 +96,20 @@
         {
           "flight": "BM0527",
           "departure": "2026-09-13 15:20",
-          "seats": 9,
+          "seats": 7,
           "classes": {
             "C": 4,
-            "Y": 9,
+            "Y": 7,
+            "R": 0
+          }
+        },
+        {
+          "flight": "BM0527",
+          "departure": "2026-09-18 12:20",
+          "seats": 69,
+          "classes": {
+            "C": 1,
+            "Y": 69,
             "R": 0
           }
         }
