@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 """
-MedSky seat availability monitor — two directions.
+MedSky seat availability monitor — multi-route.
 
-Outbound (MJI -> MXP): sends a Telegram alert when a flight goes from
-sold-out to available. Return (MXP -> MJI): tracked and shown on the
-board, but does NOT trigger Telegram alerts (display-only).
+Routes: MJI <-> MXP (Milan) and MJI <-> CDG (Paris, launching 17 Sep).
 
-Both directions are recorded in the movement history log.
+Per leg:
+  alert=True        -> sold-out -> available transition sends Telegram
+  alert=False       -> tracked and shown on the board, no Telegram
+  new_route_alert   -> if the API had NO flights for this leg before and
+                       now returns some, send a "tickets on sale" alert.
+                       Remove the flag once the route is live and stable.
+
+All directions are recorded in the movement history log.
+If one leg's API call fails, the other legs still run, and the failed
+leg's previous state is carried forward (no false alerts next run).
 """
 
 import json
@@ -17,12 +24,14 @@ from pathlib import Path
 
 import requests
 
-# Directions to watch.
-#   alert=True  -> a sold-out -> available transition sends Telegram
-#   alert=False -> tracked and shown on the board, but no Telegram
+# If MedSky ends up flying to Orly instead of CDG, change this one line.
+PARIS = "CDG"
+
 LEGS = [
-    {"from": "MJI", "to": "MXP", "alert": True},   # outbound — alerts
-    {"from": "MXP", "to": "MJI", "alert": False},  # return — display only
+    {"from": "MJI", "to": "MXP", "alert": True},   # Milan outbound — alerts
+    {"from": "MXP", "to": "MJI", "alert": False},  # Milan return — display only
+    {"from": "MJI", "to": PARIS, "alert": True,  "new_route_alert": True},
+    {"from": PARIS, "to": "MJI", "alert": False, "new_route_alert": True},
 ]
 OFFICE = int(os.environ.get("MEDSKY_OFFICE", "1"))
 ALERT_CLASSES = set(os.environ.get("MEDSKY_CLASSES", "Y,R").split(","))
@@ -46,6 +55,13 @@ HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/126.0 Safari/537.36"
     ),
+}
+
+ROUTE_NAMES = {
+    "MJI": "طرابلس معيتيقة",
+    "MXP": "ميلانو مالبينسا",
+    "CDG": "باريس شارل ديغول",
+    "ORY": "باريس أورلي",
 }
 
 
@@ -116,6 +132,10 @@ def prev_seats(prev, key):
     return 0
 
 
+def prev_has_dir(prev, dir_code):
+    return any(key.startswith(dir_code + "_") for key in prev)
+
+
 def detect_movements(flights, prev):
     moves = []
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -154,6 +174,7 @@ def write_page_data(directions):
         "directions": [
             {
                 "from": d["from"], "to": d["to"], "alert": d["alert"],
+                "failed": d.get("failed", False),
                 "flights": [
                     {"flight": f["flight"], "departure": f["departure"],
                      "seats": f["seats"], "classes": f["classes"]}
@@ -191,6 +212,21 @@ def format_alert(newly_available):
     return "\n".join(lines)
 
 
+def format_new_route_alert(leg, flights):
+    name_from = ROUTE_NAMES.get(leg["from"], leg["from"])
+    name_to = ROUTE_NAMES.get(leg["to"], leg["to"])
+    lines = [f"🆕 خط جديد نزل للبيع على MedSky!",
+             f"✈️ {name_from} ← {name_to} ({leg['from']} → {leg['to']})",
+             ""]
+    for _, f in sorted(flights.items())[:6]:
+        lines.append(f"• {f['departure']}  رحلة {f['flight']}  مقاعد: {f['seats']}")
+    if len(flights) > 6:
+        lines.append(f"… و{len(flights) - 6} رحلات أخرى")
+    lines.append("")
+    lines.append("احجز توا: https://booking.medsky.aero/")
+    return "\n".join(lines)
+
+
 def main():
     prev = load_state()
     first_run = not STATE_FILE.exists()
@@ -198,15 +234,36 @@ def main():
     directions = []
     all_flights = {}
     newly_available = []
+    new_routes = []
 
     for leg in LEGS:
-        journeys = fetch_availability(leg["from"], leg["to"])
+        dir_code = leg["from"] + leg["to"]
+        try:
+            journeys = fetch_availability(leg["from"], leg["to"])
+        except requests.RequestException as exc:
+            # This leg failed — keep its previous state so the next
+            # successful run doesn't see everything as "new seats".
+            print(f"{leg['from']}->{leg['to']}: FAILED ({exc}) — carrying previous state forward")
+            carried = {
+                key: {**val, "route": f"{leg['from']} -> {leg['to']}", "dir": dir_code}
+                for key, val in prev.items()
+                if key.startswith(dir_code + "_") and isinstance(val, dict)
+            }
+            all_flights.update(carried)
+            directions.append({**leg, "flights": carried, "failed": True})
+            continue
+
         flights = flights_from_journeys(journeys, leg["from"], leg["to"])
         print(f"{leg['from']}->{leg['to']}: {len(flights)} flight(s)")
         for _, f in sorted(flights.items()):
             print(f"  {f['departure']}  {f['flight']}  seats={f['seats']}  {f['classes']}")
+
         directions.append({**leg, "flights": flights})
         all_flights.update(flights)
+
+        if not first_run and leg.get("new_route_alert") and flights and not prev_has_dir(prev, dir_code):
+            new_routes.append((leg, flights))
+
         if leg["alert"]:
             newly_available += [
                 info for key, info in sorted(flights.items())
@@ -215,11 +272,18 @@ def main():
 
     if first_run:
         print("First run: baseline saved, no alerts sent.")
-    elif newly_available:
-        send_telegram(format_alert(newly_available))
-        print(f"Alert sent for {len(newly_available)} flight(s).")
     else:
-        print("No change worth alerting.")
+        for leg, flights in new_routes:
+            send_telegram(format_new_route_alert(leg, flights))
+            print(f"New-route alert sent for {leg['from']}->{leg['to']}.")
+        # Don't double-alert flights already covered by a new-route alert.
+        new_dirs = {leg["from"] + leg["to"] for leg, _ in new_routes}
+        newly_available = [f for f in newly_available if f["dir"] not in new_dirs]
+        if newly_available:
+            send_telegram(format_alert(newly_available))
+            print(f"Alert sent for {len(newly_available)} flight(s).")
+        else:
+            print("No seat-return alert needed.")
 
     if not first_run:
         moves = detect_movements(all_flights, prev)
