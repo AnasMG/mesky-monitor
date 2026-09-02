@@ -2,7 +2,7 @@ name: MedSky seat monitor
 
 on:
   schedule:
-           - cron: "*/30 * * * *"   # every 30 minutes (GitHub may delay a bit)
+    - cron: "*/30 * * * *"   # every 30 minutes (GitHub may delay a bit)
   workflow_dispatch: {}       # manual "Run workflow" button for testing
 
 permissions:
@@ -29,9 +29,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          # Change the route here if needed:
-          MEDSKY_FROM: "MJI"
-          MEDSKY_TO: "MXP"
+          # Routes are defined in the LEGS list at the top of monitor.py
           MEDSKY_CLASSES: "Y,R"
           # MEDSKY_MAX_DAYS: "14"   # uncomment to limit the window
         run: python monitor.py
@@ -40,7 +38,7 @@ jobs:
         run: |
           git config user.name "medsky-monitor"
           git config user.email "actions@users.noreply.github.com"
-          git add state.json docs/data.json
+          git add state.json docs/data.json docs/history.json
           if ! git diff --cached --quiet; then
             git commit -m "Update availability state [skip ci]"
             git push
