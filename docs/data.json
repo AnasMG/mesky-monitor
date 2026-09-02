@@ -1,10 +1,11 @@
 {
-  "updated_utc": "2026-09-02T09:11:13.386242+00:00",
+  "updated_utc": "2026-09-02T10:11:38.590145+00:00",
   "directions": [
     {
       "from": "MJI",
       "to": "MXP",
       "alert": true,
+      "failed": false,
       "flights": [
         {
           "flight": "BM0526",
@@ -31,7 +32,7 @@
           "departure": "2026-09-11 09:00",
           "seats": 49,
           "classes": {
-            "C": 7,
+            "C": 6,
             "Y": 49,
             "R": 0
           }
@@ -62,6 +63,7 @@
       "from": "MXP",
       "to": "MJI",
       "alert": false,
+      "failed": false,
       "flights": [
         {
           "flight": "BM0527",
@@ -111,6 +113,71 @@
             "C": 1,
             "Y": 61,
             "R": 0
+          }
+        }
+      ]
+    },
+    {
+      "from": "MJI",
+      "to": "CDG",
+      "alert": true,
+      "failed": false,
+      "flights": [
+        {
+          "flight": "BM0590",
+          "departure": "2026-09-17 10:00",
+          "seats": 0,
+          "classes": {
+            "C": 0,
+            "T": 0
+          }
+        },
+        {
+          "flight": "BM0590",
+          "departure": "2026-09-24 10:00",
+          "seats": 108,
+          "classes": {
+            "C": 8,
+            "Y": 89,
+            "R": 19
+          }
+        },
+        {
+          "flight": "BM0590",
+          "departure": "2026-10-01 10:00",
+          "seats": 110,
+          "classes": {
+            "C": 8,
+            "Y": 90,
+            "R": 20
+          }
+        }
+      ]
+    },
+    {
+      "from": "CDG",
+      "to": "MJI",
+      "alert": false,
+      "failed": false,
+      "flights": [
+        {
+          "flight": "BM0591",
+          "departure": "2026-09-19 19:45",
+          "seats": 89,
+          "classes": {
+            "C": 6,
+            "Y": 70,
+            "R": 19
+          }
+        },
+        {
+          "flight": "BM0591",
+          "departure": "2026-09-26 19:45",
+          "seats": 109,
+          "classes": {
+            "C": 8,
+            "Y": 89,
+            "R": 20
           }
         }
       ]
