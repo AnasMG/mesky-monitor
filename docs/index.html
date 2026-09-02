@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#070B14">
-<title>مقاعد MedSky — MJI ← MXP</title>
+<title>مقاعد MedSky</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;600;800&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
@@ -103,9 +103,9 @@
   footer .stale{color:var(--gold)}
 
   /* direction tabs */
-  .tabs{display:flex;gap:8px;margin-bottom:18px}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
   .tab{
-    flex:1;text-align:center;padding:11px 8px;border-radius:10px;cursor:pointer;
+    flex:1 1 calc(50% - 4px);min-width:calc(50% - 4px);text-align:center;padding:11px 8px;border-radius:10px;cursor:pointer;
     font-family:"Alexandria",sans-serif;font-size:13.5px;font-weight:400;
     color:var(--dim);background:var(--panel);border:1px solid var(--hairline);
     transition:.18s;user-select:none;
@@ -142,7 +142,7 @@
 <div class="wrap">
   <div class="mast">
     <div class="brand">لوحة مقاعد MEDSKY</div>
-    <div class="tag" id="route">MJI — MXP</div>
+    <div class="tag" id="route">MJI — MXP — CDG</div>
   </div>
   <div id="app"><div class="state">جاري تحميل البيانات…</div></div>
   <footer id="foot"></footer>
@@ -150,12 +150,15 @@
 <script>
 const TZ="Africa/Tripoli";
 const app=document.getElementById("app"), foot=document.getElementById("foot");
-const CITY={MJI:"معيتيقة · طرابلس",MXP:"مالبينسا · ميلانو"};
+const CITY={MJI:"معيتيقة · طرابلس",MXP:"مالبينسا · ميلانو",CDG:"شارل ديغول · باريس",ORY:"أورلي · باريس"};
 const API="https://portal.medsky.aero/api/FlightBooking/GetAvailability";
 // Directions: outbound alerts, return is display-only (matches monitor.py)
+const PARIS="CDG"; // بدّلها لـ "ORY" لو MedSky اختارت أورلي
 const LEGS=[
-  {from:"MJI", to:"MXP", label:"ذهاب"},
-  {from:"MXP", to:"MJI", label:"عودة"},
+  {from:"MJI", to:"MXP",   label:"ميلانو · ذهاب"},
+  {from:"MXP", to:"MJI",   label:"ميلانو · عودة"},
+  {from:"MJI", to:PARIS,   label:"باريس · ذهاب"},
+  {from:PARIS, to:"MJI",   label:"باريس · عودة"},
 ];
 let DIRS=[];      // [{from,to,flights,live}]
 let ACTIVE=0;     // which tab is shown
@@ -191,6 +194,10 @@ function renderDir(d){
     hero=`<div class="label">أقرب مقعد متاح</div>
       <div class="value ok">${fmtDep(f.departure)}</div>
       <div class="sub"><b>${f.seats} مقعد</b> · رحلة ${f.flight} · احجز من booking.medsky.aero</div>`;
+  }else if(!flights.length){
+    hero=`<div class="label">الوضع الحالي</div>
+      <div class="value none">لا رحلات معروضة</div>
+      <div class="sub">هذا الاتجاه ما فيهش رحلات في نظام الحجز حالياً</div>`;
   }else{
     hero=`<div class="label">الوضع الحالي</div>
       <div class="value none">لا مقاعد متاحة</div>
@@ -205,7 +212,9 @@ function renderDir(d){
       <div class="cls">${cls}</div>
       <div class="pill ${ok?"ok":"none"}">${ok?f.seats+" مقعد":"مكتملة"}</div>
     </div>`;
-  }).join("") || `<div class="state">ما فيش رحلات في النافذة الحالية.</div>`;
+  }).join("") || (d.to==="CDG"||d.from==="CDG"||d.to==="ORY"||d.from==="ORY"
+     ? `<div class="state">خط باريس لسه ما نزلش للبيع.<br>المراقب يفحص كل نص ساعة وبيعلمك أول ما التذاكر تتوفر.</div>`
+     : `<div class="state">ما فيش رحلات في النافذة الحالية.</div>`);
 
   return `<div class="pass">
       <div class="route">
@@ -307,7 +316,9 @@ async function fetchCached(){
 async function load(){
   // try live for both directions in parallel
   const results=await Promise.allSettled(LEGS.map(l=>fetchLiveDir(l.from,l.to)));
-  const live=results.map((r,i)=> r.status==="fulfilled" && r.value.flights.length ? r.value : null);
+  const live=results.map((r,i)=> r.status==="fulfilled" ? r.value : null);
+  // if literally every direction is empty, prefer cached (may mean the API blocked us silently)
+  if(live.every(v=>v&&!v.flights.length)) live.fill(null);
   if(live.every(Boolean)){
     DIRS=live; paint(); return;
   }
