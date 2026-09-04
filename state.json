@@ -62,11 +62,11 @@
     "classes": {
       "C": 0,
       "R": 0,
-      "Y": 1
+      "Y": 0
     },
     "departure": "2026-09-04 09:00",
     "flight": "BM0526",
-    "seats": 1
+    "seats": 0
   },
   "MJIMXP_BM0526_2026-09-06T12:00:00": {
     "classes": {
