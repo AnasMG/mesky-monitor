@@ -122,11 +122,11 @@
     "classes": {
       "C": 0,
       "R": 0,
-      "Y": 30
+      "Y": 27
     },
     "departure": "2026-09-06 15:20",
     "flight": "BM0527",
-    "seats": 30
+    "seats": 27
   },
   "MXPMJI_BM0527_2026-09-11T12:20:00": {
     "classes": {
