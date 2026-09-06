@@ -2,12 +2,12 @@
   "CDGMJI_BM0591_2026-09-19T19:45:00": {
     "classes": {
       "C": 6,
-      "R": 9,
+      "R": 11,
       "Y": 69
     },
     "departure": "2026-09-19 19:45",
     "flight": "BM0591",
-    "seats": 78
+    "seats": 80
   },
   "CDGMJI_BM0591_2026-09-26T19:45:00": {
     "classes": {
@@ -122,11 +122,11 @@
     "classes": {
       "C": 4,
       "R": 0,
-      "Y": 37
+      "Y": 39
     },
     "departure": "2026-09-11 12:20",
     "flight": "BM0527",
-    "seats": 37
+    "seats": 39
   },
   "MXPMJI_BM0527_2026-09-13T15:20:00": {
     "classes": {
