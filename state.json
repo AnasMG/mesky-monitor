@@ -12,12 +12,12 @@
   "CDGMJI_BM0591_2026-09-26T19:45:00": {
     "classes": {
       "C": 8,
-      "R": 15,
+      "R": 17,
       "Y": 90
     },
     "departure": "2026-09-26 19:45",
     "flight": "BM0591",
-    "seats": 105
+    "seats": 107
   },
   "CDGMJI_BM0591_2026-10-03T19:45:00": {
     "classes": {
@@ -72,41 +72,41 @@
     "classes": {
       "C": 1,
       "R": 0,
-      "Y": 27
+      "Y": 25
     },
     "departure": "2026-09-11 09:00",
     "flight": "BM0526",
-    "seats": 27
+    "seats": 25
   },
   "MJIMXP_BM0526_2026-09-13T12:00:00": {
     "classes": {
       "C": 0,
       "R": 0,
-      "Y": 53
+      "Y": 54
     },
     "departure": "2026-09-13 12:00",
     "flight": "BM0526",
-    "seats": 53
+    "seats": 54
   },
   "MJIMXP_BM0526_2026-09-18T09:00:00": {
     "classes": {
       "C": 6,
       "R": 0,
-      "Y": 80
+      "Y": 83
     },
     "departure": "2026-09-18 09:00",
     "flight": "BM0526",
-    "seats": 80
+    "seats": 83
   },
   "MJIMXP_BM0526_2026-09-20T12:00:00": {
     "classes": {
       "C": 1,
       "R": 0,
-      "Y": 37
+      "Y": 35
     },
     "departure": "2026-09-20 12:00",
     "flight": "BM0526",
-    "seats": 37
+    "seats": 35
   },
   "MXPMJI_BM0527_2026-09-06T15:20:00": {
     "classes": {
@@ -120,13 +120,13 @@
   },
   "MXPMJI_BM0527_2026-09-11T12:20:00": {
     "classes": {
-      "C": 6,
+      "C": 3,
       "R": 0,
-      "Y": 35
+      "Y": 38
     },
     "departure": "2026-09-11 12:20",
     "flight": "BM0527",
-    "seats": 35
+    "seats": 38
   },
   "MXPMJI_BM0527_2026-09-13T15:20:00": {
     "classes": {
@@ -142,20 +142,20 @@
     "classes": {
       "C": 0,
       "R": 0,
-      "Y": 55
+      "Y": 51
     },
     "departure": "2026-09-18 12:20",
     "flight": "BM0527",
-    "seats": 55
+    "seats": 51
   },
   "MXPMJI_BM0527_2026-09-20T15:20:00": {
     "classes": {
       "C": 8,
       "R": 0,
-      "Y": 35
+      "Y": 34
     },
     "departure": "2026-09-20 15:20",
     "flight": "BM0527",
-    "seats": 35
+    "seats": 34
   }
 }
