@@ -84,11 +84,11 @@
     "classes": {
       "C": 2,
       "R": 0,
-      "Y": 0
+      "Y": 1
     },
     "departure": "2026-09-11 09:00",
     "flight": "BM0526",
-    "seats": 0
+    "seats": 1
   },
   "MJIMXP_BM0526_2026-09-13T12:00:00": {
     "classes": {
@@ -103,12 +103,12 @@
   "MJIMXP_BM0526_2026-09-18T09:00:00": {
     "classes": {
       "C": 0,
-      "R": 11,
+      "R": 8,
       "Y": 53
     },
     "departure": "2026-09-18 09:00",
     "flight": "BM0526",
-    "seats": 64
+    "seats": 61
   },
   "MJIMXP_BM0526_2026-09-20T12:00:00": {
     "classes": {
@@ -174,10 +174,10 @@
     "classes": {
       "C": 0,
       "R": 4,
-      "Y": 78
+      "Y": 77
     },
     "departure": "2026-09-25 12:20",
     "flight": "BM0527",
-    "seats": 82
+    "seats": 81
   }
 }
