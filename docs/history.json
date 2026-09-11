@@ -4,16 +4,6 @@
     "flight": "BM0526",
     "departure": "2026-09-13 12:00",
     "dir": "MJIMXP",
-    "cls": "Y",
-    "from": 48,
-    "to": 34,
-    "delta": -14
-  },
-  {
-    "ts": "2026-09-07T16:12:02+00:00",
-    "flight": "BM0526",
-    "departure": "2026-09-13 12:00",
-    "dir": "MJIMXP",
     "cls": "R",
     "from": 0,
     "to": 14,
@@ -1998,5 +1988,15 @@
     "from": 31,
     "to": 32,
     "delta": 1
+  },
+  {
+    "ts": "2026-09-11T21:26:17+00:00",
+    "flight": "BM0591",
+    "departure": "2026-09-26 19:45",
+    "dir": "CDGMJI",
+    "cls": "R",
+    "from": 32,
+    "to": 27,
+    "delta": -5
   }
 ]
