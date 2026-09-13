@@ -39,16 +39,6 @@
     "flight": "BM0591",
     "seats": 99
   },
-  "CDGMJI_BM9991_2026-09-12T14:00:00": {
-    "classes": {
-      "C": 0,
-      "R": 0,
-      "Y": 0
-    },
-    "departure": "2026-09-12 14:00",
-    "flight": "BM9991",
-    "seats": 0
-  },
   "MJICDG_BM0590_2026-09-17T09:40:00": {
     "classes": {
       "C": 0,
