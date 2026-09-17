@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2026-09-17T18:22:52.570824+00:00",
+  "updated_utc": "2026-09-17T21:32:51.296816+00:00",
   "directions": [
     {
       "from": "MJI",
@@ -10,10 +10,10 @@
         {
           "flight": "BM0526",
           "departure": "2026-09-18 09:00",
-          "seats": 15,
+          "seats": 14,
           "classes": {
-            "C": 3,
-            "Y": 15,
+            "C": 4,
+            "Y": 14,
             "R": 0
           }
         },
@@ -137,20 +137,20 @@
         {
           "flight": "BM0590",
           "departure": "2026-09-24 09:40",
-          "seats": 89,
+          "seats": 90,
           "classes": {
             "C": 4,
             "Y": 60,
-            "R": 29
+            "R": 30
           }
         },
         {
           "flight": "BM0590",
           "departure": "2026-10-01 09:40",
-          "seats": 99,
+          "seats": 97,
           "classes": {
             "C": 7,
-            "Y": 60,
+            "Y": 58,
             "R": 39
           }
         },
@@ -185,40 +185,40 @@
         {
           "flight": "BM0591",
           "departure": "2026-09-19 19:45",
-          "seats": 71,
+          "seats": 68,
           "classes": {
             "C": 0,
             "Y": 48,
-            "R": 23
+            "R": 20
           }
         },
         {
           "flight": "BM0591",
           "departure": "2026-09-26 19:45",
-          "seats": 85,
+          "seats": 84,
           "classes": {
             "C": 3,
             "Y": 56,
-            "R": 29
+            "R": 28
           }
         },
         {
           "flight": "BM0591",
           "departure": "2026-10-03 19:45",
-          "seats": 90,
+          "seats": 91,
           "classes": {
             "C": 5,
             "Y": 60,
-            "R": 30
+            "R": 31
           }
         },
         {
           "flight": "BM0591",
           "departure": "2026-10-10 19:45",
-          "seats": 99,
+          "seats": 98,
           "classes": {
             "C": 8,
-            "Y": 60,
+            "Y": 59,
             "R": 39
           }
         }
