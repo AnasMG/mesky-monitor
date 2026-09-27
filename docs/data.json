@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2026-09-26T23:01:25.211311+00:00",
+  "updated_utc": "2026-09-27T01:36:42.374586+00:00",
   "directions": [
     {
       "from": "MJI",
@@ -179,16 +179,6 @@
       "alert": false,
       "failed": false,
       "flights": [
-        {
-          "flight": "BM0591",
-          "departure": "2026-09-26 19:45",
-          "seats": 88,
-          "classes": {
-            "C": 1,
-            "Y": 56,
-            "R": 32
-          }
-        },
         {
           "flight": "BM0591",
           "departure": "2026-10-03 19:45",
