@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2026-10-02T23:53:23.395455+00:00",
+  "updated_utc": "2026-10-03T02:55:23.464486+00:00",
   "directions": [
     {
       "from": "MJI",
@@ -7,17 +7,6 @@
       "alert": true,
       "failed": false,
       "flights": [
-        {
-          "flight": "BM0526",
-          "departure": "2026-10-02 09:00",
-          "seats": 43,
-          "classes": {
-            "C": 3,
-            "Y": 13,
-            "R": 30,
-            "T": 17
-          }
-        },
         {
           "flight": "BM0526",
           "departure": "2026-10-04 12:00",
@@ -61,6 +50,16 @@
             "R": 17,
             "T": 14
           }
+        },
+        {
+          "flight": "BM0526",
+          "departure": "2026-10-18 12:00",
+          "seats": 82,
+          "classes": {
+            "Y": 66,
+            "R": 16,
+            "T": 14
+          }
         }
       ]
     },
@@ -70,17 +69,6 @@
       "alert": false,
       "failed": false,
       "flights": [
-        {
-          "flight": "BM0527",
-          "departure": "2026-10-02 12:20",
-          "seats": 28,
-          "classes": {
-            "C": 0,
-            "Y": 13,
-            "R": 15,
-            "T": 9
-          }
-        },
         {
           "flight": "BM0527",
           "departure": "2026-10-04 15:20",
@@ -121,6 +109,17 @@
             "Y": 55,
             "R": 16,
             "T": 9
+          }
+        },
+        {
+          "flight": "BM0527",
+          "departure": "2026-10-18 15:20",
+          "seats": 76,
+          "classes": {
+            "C": 0,
+            "Y": 60,
+            "R": 16,
+            "T": 0
           }
         }
       ]
