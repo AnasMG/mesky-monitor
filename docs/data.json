@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2026-10-09T20:10:29.631932+00:00",
+  "updated_utc": "2026-10-10T00:07:47.235560+00:00",
   "directions": [
     {
       "from": "MJI",
@@ -9,22 +9,11 @@
       "flights": [
         {
           "flight": "BM0526",
-          "departure": "2026-10-09 09:00",
-          "seats": 0,
-          "classes": {
-            "C": 1,
-            "Y": 0,
-            "R": 0,
-            "T": 0
-          }
-        },
-        {
-          "flight": "BM0526",
           "departure": "2026-10-11 12:00",
-          "seats": 23,
+          "seats": 24,
           "classes": {
             "C": 0,
-            "Y": 23,
+            "Y": 24,
             "R": 0,
             "T": 0
           }
@@ -32,11 +21,11 @@
         {
           "flight": "BM0526",
           "departure": "2026-10-16 09:00",
-          "seats": 74,
+          "seats": 75,
           "classes": {
             "C": 5,
             "Y": 58,
-            "R": 16,
+            "R": 17,
             "T": 8
           }
         },
@@ -58,7 +47,18 @@
             "C": 8,
             "Y": 72,
             "R": 18,
-            "T": 18
+            "T": 16
+          }
+        },
+        {
+          "flight": "BM0526",
+          "departure": "2026-10-25 12:00",
+          "seats": 77,
+          "classes": {
+            "C": 0,
+            "Y": 67,
+            "R": 10,
+            "T": 11
           }
         }
       ]
@@ -69,17 +69,6 @@
       "alert": false,
       "failed": false,
       "flights": [
-        {
-          "flight": "BM0527",
-          "departure": "2026-10-09 12:20",
-          "seats": 0,
-          "classes": {
-            "C": 2,
-            "Y": 0,
-            "R": 0,
-            "T": 0
-          }
-        },
         {
           "flight": "BM0527",
           "departure": "2026-10-11 15:20",
@@ -104,22 +93,33 @@
         {
           "flight": "BM0527",
           "departure": "2026-10-18 15:20",
-          "seats": 66,
+          "seats": 63,
           "classes": {
             "C": 0,
             "Y": 55,
-            "R": 11,
+            "R": 8,
             "T": 1
           }
         },
         {
           "flight": "BM0527",
           "departure": "2026-10-23 12:20",
-          "seats": 77,
+          "seats": 78,
           "classes": {
             "C": 6,
             "Y": 68,
-            "R": 9,
+            "R": 10,
+            "T": 1
+          }
+        },
+        {
+          "flight": "BM0527",
+          "departure": "2026-10-25 14:20",
+          "seats": 79,
+          "classes": {
+            "C": 1,
+            "Y": 61,
+            "R": 18,
             "T": 1
           }
         }
