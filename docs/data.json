@@ -1,20 +1,20 @@
 {
-  "updated_utc": "2026-10-18T11:29:49.832146+00:00",
+  "updated_utc": "2026-10-18T14:44:00.101737+00:00",
   "directions": [
     {
       "from": "MJI",
       "to": "MXP",
       "alert": true,
-      "failed": true,
+      "failed": false,
       "flights": [
         {
           "flight": "BM0526",
           "departure": "2026-10-18 12:00",
-          "seats": 24,
+          "seats": 25,
           "classes": {
+            "Y": 18,
             "R": 7,
-            "T": 7,
-            "Y": 17
+            "T": 8
           }
         },
         {
@@ -23,9 +23,9 @@
           "seats": 87,
           "classes": {
             "C": 0,
+            "Y": 70,
             "R": 17,
-            "T": 0,
-            "Y": 70
+            "T": 0
           }
         },
         {
@@ -34,9 +34,9 @@
           "seats": 76,
           "classes": {
             "C": 0,
+            "Y": 66,
             "R": 10,
-            "T": 9,
-            "Y": 66
+            "T": 4
           }
         },
         {
@@ -45,9 +45,9 @@
           "seats": 79,
           "classes": {
             "C": 4,
+            "Y": 61,
             "R": 18,
-            "T": 9,
-            "Y": 61
+            "T": 8
           }
         },
         {
@@ -56,9 +56,9 @@
           "seats": 88,
           "classes": {
             "C": 6,
+            "Y": 68,
             "R": 20,
-            "T": 2,
-            "Y": 68
+            "T": 1
           }
         }
       ]
@@ -67,28 +67,28 @@
       "from": "MXP",
       "to": "MJI",
       "alert": false,
-      "failed": true,
+      "failed": false,
       "flights": [
         {
           "flight": "BM0527",
           "departure": "2026-10-18 15:20",
-          "seats": 24,
+          "seats": 23,
           "classes": {
             "C": 0,
+            "Y": 9,
             "R": 14,
-            "T": 8,
-            "Y": 10
+            "T": 8
           }
         },
         {
           "flight": "BM0527",
           "departure": "2026-10-23 12:20",
-          "seats": 41,
+          "seats": 28,
           "classes": {
-            "C": 2,
+            "C": 1,
+            "Y": 28,
             "R": 0,
-            "T": 0,
-            "Y": 41
+            "T": 1
           }
         },
         {
@@ -97,31 +97,31 @@
           "seats": 69,
           "classes": {
             "C": 2,
+            "Y": 59,
             "R": 10,
-            "T": 0,
-            "Y": 59
+            "T": 0
           }
         },
         {
           "flight": "BM0527",
           "departure": "2026-10-30 11:20",
-          "seats": 77,
+          "seats": 75,
           "classes": {
             "C": 5,
-            "R": 12,
-            "T": 0,
-            "Y": 65
+            "Y": 65,
+            "R": 10,
+            "T": 0
           }
         },
         {
           "flight": "BM0527",
           "departure": "2026-11-01 14:20",
-          "seats": 80,
+          "seats": 76,
           "classes": {
             "C": 3,
-            "R": 15,
-            "T": 0,
-            "Y": 65
+            "Y": 65,
+            "R": 11,
+            "T": 0
           }
         }
       ]
@@ -130,7 +130,7 @@
       "from": "MJI",
       "to": "CDG",
       "alert": true,
-      "failed": true,
+      "failed": false,
       "flights": [
         {
           "flight": "BM0590",
@@ -138,8 +138,8 @@
           "seats": 110,
           "classes": {
             "C": 4,
-            "R": 41,
-            "Y": 69
+            "Y": 69,
+            "R": 41
           }
         },
         {
@@ -148,8 +148,8 @@
           "seats": 87,
           "classes": {
             "C": 2,
-            "R": 28,
-            "Y": 59
+            "Y": 59,
+            "R": 28
           }
         },
         {
@@ -158,8 +158,8 @@
           "seats": 99,
           "classes": {
             "C": 7,
-            "R": 39,
-            "Y": 60
+            "Y": 60,
+            "R": 39
           }
         },
         {
@@ -168,8 +168,8 @@
           "seats": 100,
           "classes": {
             "C": 7,
-            "R": 40,
-            "Y": 60
+            "Y": 60,
+            "R": 40
           }
         }
       ]
@@ -178,16 +178,16 @@
       "from": "CDG",
       "to": "MJI",
       "alert": false,
-      "failed": true,
+      "failed": false,
       "flights": [
         {
           "flight": "BM0591",
           "departure": "2026-10-24 19:45",
-          "seats": 100,
+          "seats": 97,
           "classes": {
             "C": 0,
-            "R": 31,
-            "Y": 69
+            "Y": 68,
+            "R": 29
           }
         },
         {
@@ -196,8 +196,8 @@
           "seats": 85,
           "classes": {
             "C": 8,
-            "R": 25,
-            "Y": 60
+            "Y": 60,
+            "R": 25
           }
         },
         {
@@ -206,8 +206,8 @@
           "seats": 95,
           "classes": {
             "C": 8,
-            "R": 36,
-            "Y": 59
+            "Y": 59,
+            "R": 36
           }
         },
         {
@@ -216,8 +216,8 @@
           "seats": 94,
           "classes": {
             "C": 8,
-            "R": 35,
-            "Y": 59
+            "Y": 59,
+            "R": 35
           }
         }
       ]
