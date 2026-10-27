@@ -32,22 +32,22 @@
   "CDGMJI_BM0591_2026-11-21T18:45:00": {
     "classes": {
       "C": 8,
-      "R": 35,
+      "R": 34,
       "Y": 60
     },
     "departure": "2026-11-21 18:45",
     "flight": "BM0591",
-    "seats": 95
+    "seats": 94
   },
   "MJICDG_BM0590_2026-10-29T10:00:00": {
     "classes": {
       "C": 3,
-      "R": 18,
+      "R": 21,
       "Y": 67
     },
     "departure": "2026-10-29 10:00",
     "flight": "BM0590",
-    "seats": 85
+    "seats": 88
   },
   "MJICDG_BM0590_2026-11-05T10:00:00": {
     "classes": {
@@ -78,6 +78,16 @@
     "departure": "2026-11-19 10:00",
     "flight": "BM0590",
     "seats": 91
+  },
+  "MJICDG_BM0590_2026-11-26T10:00:00": {
+    "classes": {
+      "C": 8,
+      "R": 37,
+      "Y": 60
+    },
+    "departure": "2026-11-26 10:00",
+    "flight": "BM0590",
+    "seats": 97
   },
   "MJIMXP_BM0526_2026-10-30T09:00:00": {
     "classes": {
