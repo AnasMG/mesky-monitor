@@ -4,26 +4,6 @@
     "flight": "BM0527",
     "departure": "2026-11-22 14:20",
     "dir": "MXPMJI",
-    "cls": "C",
-    "from": 2,
-    "to": 1,
-    "delta": -1
-  },
-  {
-    "ts": "2026-11-16T18:43:37+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-22 14:20",
-    "dir": "MXPMJI",
-    "cls": "Y",
-    "from": 47,
-    "to": 40,
-    "delta": -7
-  },
-  {
-    "ts": "2026-11-16T18:43:37+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-22 14:20",
-    "dir": "MXPMJI",
     "cls": "T",
     "from": 24,
     "to": 20,
@@ -1997,6 +1977,26 @@
     "cls": "T",
     "from": 5,
     "to": 4,
+    "delta": -1
+  },
+  {
+    "ts": "2026-11-22T02:44:39+00:00",
+    "flight": "BM0527",
+    "departure": "2026-11-29 14:20",
+    "dir": "MXPMJI",
+    "cls": "T",
+    "from": 19,
+    "to": 21,
+    "delta": 2
+  },
+  {
+    "ts": "2026-11-22T02:44:39+00:00",
+    "flight": "BM0527",
+    "departure": "2026-12-04 11:20",
+    "dir": "MXPMJI",
+    "cls": "T",
+    "from": 3,
+    "to": 2,
     "delta": -1
   }
 ]
