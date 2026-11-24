@@ -1,116 +1,6 @@
 [
   {
     "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-20 11:20",
-    "dir": "MXPMJI",
-    "cls": "T",
-    "from": 19,
-    "to": 17,
-    "delta": -2
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-22 14:20",
-    "dir": "MXPMJI",
-    "cls": "C",
-    "from": 1,
-    "to": 2,
-    "delta": 1
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-22 14:20",
-    "dir": "MXPMJI",
-    "cls": "Y",
-    "from": 40,
-    "to": 32,
-    "delta": -8
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-22 14:20",
-    "dir": "MXPMJI",
-    "cls": "R",
-    "from": 19,
-    "to": 20,
-    "delta": 1
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-22 14:20",
-    "dir": "MXPMJI",
-    "cls": "T",
-    "from": 13,
-    "to": 16,
-    "delta": 3
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-27 11:20",
-    "dir": "MXPMJI",
-    "cls": "C",
-    "from": 4,
-    "to": 2,
-    "delta": -2
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-27 11:20",
-    "dir": "MXPMJI",
-    "cls": "T",
-    "from": 12,
-    "to": 11,
-    "delta": -1
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0527",
-    "departure": "2026-11-29 14:20",
-    "dir": "MXPMJI",
-    "cls": "T",
-    "from": 27,
-    "to": 26,
-    "delta": -1
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0527",
-    "departure": "2026-12-04 11:20",
-    "dir": "MXPMJI",
-    "cls": "C",
-    "from": 6,
-    "to": 5,
-    "delta": -1
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0592",
-    "departure": "2026-11-21 15:40",
-    "dir": "MJICDG",
-    "cls": "T",
-    "from": 23,
-    "to": 25,
-    "delta": 2
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
-    "flight": "BM0592",
-    "departure": "2026-12-05 15:40",
-    "dir": "MJICDG",
-    "cls": "Y",
-    "from": 60,
-    "to": 59,
-    "delta": -1
-  },
-  {
-    "ts": "2026-11-18T18:18:12+00:00",
     "flight": "BM0592",
     "departure": "2026-12-12 15:40",
     "dir": "MJICDG",
@@ -1995,6 +1885,116 @@
     "departure": "2026-12-19 18:45",
     "dir": "CDGMJI",
     "cls": "T",
+    "from": 1,
+    "to": 0,
+    "delta": -1
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0526",
+    "departure": "2026-11-27 09:00",
+    "dir": "MJIMXP",
+    "cls": "Y",
+    "from": 35,
+    "to": 34,
+    "delta": -1
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0526",
+    "departure": "2026-11-27 09:00",
+    "dir": "MJIMXP",
+    "cls": "T",
+    "from": 23,
+    "to": 20,
+    "delta": -3
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0526",
+    "departure": "2026-11-29 12:00",
+    "dir": "MJIMXP",
+    "cls": "C",
+    "from": 2,
+    "to": 1,
+    "delta": -1
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0526",
+    "departure": "2026-12-04 09:00",
+    "dir": "MJIMXP",
+    "cls": "T",
+    "from": 13,
+    "to": 12,
+    "delta": -1
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0526",
+    "departure": "2026-12-06 12:00",
+    "dir": "MJIMXP",
+    "cls": "T",
+    "from": 13,
+    "to": 12,
+    "delta": -1
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0527",
+    "departure": "2026-11-27 11:20",
+    "dir": "MXPMJI",
+    "cls": "T",
+    "from": 23,
+    "to": 21,
+    "delta": -2
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0527",
+    "departure": "2026-12-04 11:20",
+    "dir": "MXPMJI",
+    "cls": "R",
+    "from": 18,
+    "to": 13,
+    "delta": -5
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0527",
+    "departure": "2026-12-04 11:20",
+    "dir": "MXPMJI",
+    "cls": "T",
+    "from": 1,
+    "to": 0,
+    "delta": -1
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0527",
+    "departure": "2026-12-06 14:20",
+    "dir": "MXPMJI",
+    "cls": "T",
+    "from": 6,
+    "to": 5,
+    "delta": -1
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0592",
+    "departure": "2026-11-28 15:40",
+    "dir": "MJICDG",
+    "cls": "T",
+    "from": 12,
+    "to": 11,
+    "delta": -1
+  },
+  {
+    "ts": "2026-11-24T01:23:03+00:00",
+    "flight": "BM0591",
+    "departure": "2026-11-28 18:45",
+    "dir": "CDGMJI",
+    "cls": "C",
     "from": 1,
     "to": 0,
     "delta": -1
